@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+</head>
+<body>
+  <h2>Welcome <%= user.username %></h2>
+  <a href="/disconnect">Logout</a>
+  <h3>Forwards</h3>
+  <table border="1">
+    <tr><th>ID</th><th>Name</th><th>Source</th><th>Targets</th><th>Active</th><th>Actions</th></tr>
+    <% forwards.forEach(function(f){ %>
+      <tr>
+        <td><%= f.id %></td>
+        <td><%= f.name %></td>
+        <td><%= f.src_chat_id %></td>
+        <td><%= (f.targets||[]).join(', ') %></td>
+        <td><%= f.active %></td>
+        <td>
+          <form method="post" action="/forwards/remove" style="display:inline"><input type="hidden" name="id" value="<%= f.id %>"/><button>Remove</button></form>
+          <form method="post" action="/forwards/toggle" style="display:inline"><input type="hidden" name="id" value="<%= f.id %>"/><button name="action" value="<%= f.active ? 'stop' : 'start' %>"><%= f.active ? 'Stop' : 'Start' %></button></form>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+
+  <h3>Add Forward</h3>
+  <form method="post" action="/forwards/add">
+    <div><label>Name</label><input name="name"/></div>
+    <div><label>Source Chat ID</label><input name="src_chat_id"/></div>
+    <div><label>Targets (comma separated)</label><input name="targets"/></div>
+    <button type="submit">Add</button>
+  </form>
+
+  <h3>Broadcast</h3>
+  <form method="get" action="/broadcast"><button>Open Broadcast</button></form>
+
+</body>
+</html>
