@@ -14,8 +14,20 @@ module.exports = (bot) => {
   const app = express();
   app.set('view engine', 'ejs');
   app.set('views', __dirname + '/views');
-  app.use(express.static(__dirname + '/public'));  
+  app.use(express.static(__dirname + '/public'));
   app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(express.json());
+
+  // Health endpoint for Koyeb / load balancers
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
+  // Debug API: list forwards as JSON (authenticated)
+  app.get('/api/forwards', ensureAuth, async (req, res) => {
+    const forwards = await db.listForwards();
+    res.json(forwards);
+  });
 
   app.use(session({
     secret: process.env.SESSION_SECRET || 'please_change',
@@ -33,7 +45,7 @@ module.exports = (bot) => {
     successRedirect: '/',
     failureRedirect: '/login'
   }));
-  
+
   app.get('/disconnect', (req, res) => {
     req.logout && req.logout();
     req.session && req.session.destroy(() => {});
